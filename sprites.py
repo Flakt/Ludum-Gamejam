@@ -17,7 +17,7 @@ class Player(pg.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
         self.surf = pg.Surface((50, 50))
-        self.surf.fill((75, 75, 75))
+        self.surf.fill((0, 0, 0))
         self.rect = self.surf.get_rect()
 
     def update(self, pressed_keys):
@@ -39,11 +39,12 @@ class Player(pg.sprite.Sprite):
         if self.rect.bottom >= SCREEN_HEIGHT:
             self.rect.bottom = SCREEN_HEIGHT
 
+
 class Enemy(pg.sprite.Sprite):
     def __init__(self):
         super(Enemy, self).__init__()
         self.surf = pg.Surface((20, 20))
-        self.surf.fill((255,0,0))
+        self.surf.fill((80,80,80))
         self.rect = self.surf.get_rect(
             center = (
                 random.randint(20, SCREEN_WIDTH - 20),
@@ -61,3 +62,11 @@ class Enemy(pg.sprite.Sprite):
             self.kill()
         if self.rect.bottom >= SCREEN_HEIGHT:
             self.kill()
+
+
+class Bullet(pg.sprite.Sprite):
+    def __init__(self):
+        super(Bullet, self).__init__()
+        self.surf = pg.Surface((2,2))
+        self.surf.fill((255, 0, 0))
+        self.rect = self.surf.get_rect()
