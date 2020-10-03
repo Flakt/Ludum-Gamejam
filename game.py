@@ -6,17 +6,19 @@ from sprites import *
 from pygame.locals import (
     RLEACCEL,
     K_ESCAPE,
+    K_SPACE,
     KEYDOWN,
     QUIT,
 )
+vect = pg.math.Vector2
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 BLACK = (0, 0, 0)
 
-PLAYER_SPEED = 5
 PLAYER_LIVES = 5
+PLAYER_SPEED = 5
 
 ADDENEMY = pg.USEREVENT + 1
 
@@ -35,10 +37,11 @@ class Game():
         pg.key.set_repeat(500, 100)
 
     def newGame(self):
+        global PLAYER_LIVES, PLAYER_SPEED
         self.all_sprites = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
-        self.player = Player()
+        self.player = Player(PLAYER_LIVES, PLAYER_SPEED)
         self.all_sprites.add(self.player)
 
     def run(self):
@@ -58,17 +61,24 @@ class Game():
     def update(self):
         pressed_keys = pg.key.get_pressed()
         self.player.update(pressed_keys)
-
         self.enemies.update()
+        self.bullets.update()
+
         if pg.sprite.spritecollideany(self.player, self.enemies):
             player_enemy_collision(self.player, self.enemies)
 
+    def player_shoot(self):
+        new_bullet = Bullet(self.player.pos, vect(1, 0), self)
+        self.bullets.add(new_bullet)
+        self.all_sprites.add(new_bullet)
 
     def events(self):
         for event in pg.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     self.quit()
+                if event.key == K_SPACE:
+                    self.player_shoot()
             elif event.type == ADDENEMY:
                 spawn_enemy(self)
             elif event.type == QUIT:
@@ -80,6 +90,8 @@ class Game():
         for entity in self.all_sprites:
             self.screen.blit(entity.surf, entity.rect)
 
+        self.screen.blit(self.player.surf, self.player.rect)
+
         pg.display.flip()
 
 def spawn_enemy(game):
@@ -89,12 +101,11 @@ def spawn_enemy(game):
         game.all_sprites.add(new_enemy)
 
 def player_enemy_collision(player, enemies):
-    global PLAYER_LIVES
-    if PLAYER_LIVES > 0:
+    if player.lives > 0:
         for enemy in enemies:
             if pg.sprite.collide_rect(player, enemy):
                 enemy.kill()
-        PLAYER_LIVES -= 1
+        player.lives -= 1
     else:
         player.kill()
         print("Oh dear, you are dead")
