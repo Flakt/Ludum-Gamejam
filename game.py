@@ -36,6 +36,7 @@ class Game():
         self.font_color = pg.Color('springgreen')
 
         pg.key.set_repeat(500, 100)
+        self.load_data()
 
     def newGame(self):
         global PLAYER_LIVES, PLAYER_SPEED
@@ -44,6 +45,13 @@ class Game():
         self.bullets = pg.sprite.Group()
         self.player = Player(PLAYER_LIVES, PLAYER_SPEED)
         self.all_sprites.add(self.player)
+
+    def load_data(self):
+        game_folder = os.path.dirname(__file__)
+        self.map_data = []
+
+        self.level_cross_img = pg.image.load(os.path.join("level_cross.bmp"))
+        # self.level_left_T_img = pg.image.load(os.path.join(game_folder/assets, LEVEL[1]))
 
     def run(self):
         global ADDENEMY
@@ -99,6 +107,7 @@ class Game():
 
     def draw(self):
         self.screen.fill(BLACK)
+        self.screen.blit(self.level_cross_img, self.level_cross_img.get_rect())
 
         for entity in self.all_sprites:
             self.screen.blit(entity.surf, entity.rect)
