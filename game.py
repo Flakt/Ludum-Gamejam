@@ -67,6 +67,12 @@ class Game():
         if pg.sprite.spritecollideany(self.player, self.enemies):
             player_enemy_collision(self.player, self.enemies)
 
+        for bullet in self.bullets:
+            enemy_hit = pg.sprite.spritecollideany(bullet, self.enemies)
+            if enemy_hit is not None:
+                bullet.kill()
+                enemy_hit.kill()
+
     def player_shoot(self):
         new_bullet = Bullet(self.player.pos, vect(1, 0), self)
         self.bullets.add(new_bullet)
