@@ -1,12 +1,13 @@
 import random
 import os
+import math
 
 import pygame as pg
 from sprites import *
 from pygame.locals import (
     RLEACCEL,
     K_ESCAPE,
-    K_SPACE,
+    MOUSEBUTTONDOWN,
     KEYDOWN,
     QUIT,
 )
@@ -74,19 +75,25 @@ class Game():
                 enemy_hit.kill()
 
     def player_shoot(self):
-        new_bullet = Bullet(self.player.pos, vect(1, 0), self)
+        mouse_x, mouse_y = pg.mouse.get_pos()
+        angle = self.get_mouse_angle(mouse_x, mouse_y)
+        bullet_vect = vect(1, 0).rotate(-angle)
+        new_bullet = Bullet(self.player.pos, bullet_vect, self)
         self.bullets.add(new_bullet)
         self.all_sprites.add(new_bullet)
+        # new_bullet = Bullet(self.player.pos, normalized_vect, self)
+        # self.bullets.add(new_bullet)
+        # self.all_sprites.add(new_bullet)
 
     def events(self):
         for event in pg.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     self.quit()
-                if event.key == K_SPACE:
-                    self.player_shoot()
+            elif event.type == MOUSEBUTTONDOWN:
+                self.player_shoot()
             elif event.type == ADDENEMY:
-                spawn_enemy(self)
+                self.spawn_enemy()
             elif event.type == QUIT:
                 self.quit()
 
@@ -100,11 +107,17 @@ class Game():
 
         pg.display.flip()
 
-def spawn_enemy(game):
-    if random.randint(1, 5) == 5:
-        new_enemy = Enemy()
-        game.enemies.add(new_enemy)
-        game.all_sprites.add(new_enemy)
+    def spawn_enemy(self):
+        if random.randint(1, 5) == 5:
+            new_enemy = Enemy()
+            self.enemies.add(new_enemy)
+            self.all_sprites.add(new_enemy)
+
+    def get_mouse_angle(self, mouse_x, mouse_y):
+        offset = (mouse_y - self.player.rect.centery,
+                  mouse_x - self.player.rect.centerx)
+        angle = -math.degrees(math.atan2(*offset))
+        return angle
 
 def player_enemy_collision(player, enemies):
     if player.lives > 0:
